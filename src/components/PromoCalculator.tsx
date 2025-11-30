@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Search, Film, MapPin, Clock, DollarSign, Sparkles, X, Calendar, ChevronRight, AlertCircle } from 'lucide-react';
-import { getCinemas, getMoviesByLocation, scanSchedulesNext10Days, getSeats, getTodayIndonesia, downloadDebugLogs, clearDebugLogs, setAuthToken} from '../services/cgvApi';
+import { getCinemas, getMoviesByLocation, scanSchedulesNext10Days, getSeats, getTodayIndonesia, downloadDebugLogs, clearDebugLogs, setAuthToken, hasAuthToken } from '../services/cgvApi';
 import SeatMap from './SeatMap';
 
 interface Cinema {
@@ -111,6 +111,14 @@ export default function PromoCalculator() {
     setAvailableDates(dates);
     setLoadingSchedules(false);
 
+    if (dates.length === 0) {
+      setError('Tidak ada jadwal tersedia....');
+    } else {
+      setSelectedDate(dates[0]);
+      setSchedules(schedulesMap.get(dates[0]) || []);
+    }
+  };
+
   const handleDateSelect = (date: string) => {
     setSelectedDate(date);
     setSelectedSchedule(null);
@@ -177,6 +185,20 @@ export default function PromoCalculator() {
             <strong>Cara Kerja:</strong> Pilih bioskop → Pilih film → Pilih tanggal → Lihat jadwal → Pilih jadwal untuk lihat harga & kursi tersedia
           </p>
         </div>
+
+        {!hasAuthToken() && (
+          <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm text-yellow-900">
+                  <strong>Perhatian:</strong> Authorization Token tidak ditemukan. Beberapa fitur mungkin tidak berfungsi.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
 
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center justify-between">
