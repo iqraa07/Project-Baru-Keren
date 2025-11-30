@@ -1,15 +1,21 @@
+// ⚠️ NOTE:
+// Token di bawah hanya untuk testing lokal.
+// Jangan lupa HAPUS / GANTI sebelum push ke GitHub publik.
 const API_BASE = 'https://v2-api.cgv.id';
 
-let authToken: string | null = null;
+// --- Auth token & sumbernya ---
+let authToken: string | null =
+  'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3YyLWFwaS5jZ3YuaWQvYXBpL2xvZ2luIiwiaWF0IjoxNzY0NTE1ODA2LCJleHAiOjE3NjQ2MDIyMDYsIm5iZiI6MTc2NDUxNTgwNiwianRpIjoiRE5uWkdIOWdCZVNlVERmQyIsInN1YiI6ImlkYW1yb2hpbUBnbWFpbC5jb20iLCJjaGFubmVsX2NvZGUiOiIwNyIsIm1lbWJlcl9ubyI6IjI1MTA2NjE2NDMyIn0.efa1z5f8aFk2qGH-NW3Y6vXhpWRfdDTa_1eUqxXSxUw';
 
-// Auto-load token dari environment variable saat module di-import
-if (import.meta.env.VITE_CGV_AUTH_TOKEN) {
-  authToken = import.meta.env.VITE_CGV_AUTH_TOKEN;
-}
+let authTokenSource: 'hardcoded' | 'manual' = 'hardcoded';
 
+// ❌ Bagian ini dihapus supaya tidak ambil dari ENV lagi
+// if (import.meta.env.VITE_CGV_AUTH_TOKEN) {
+//   authToken = import.meta.env.VITE_CGV_AUTH_TOKEN;
 export function setAuthToken(token: string) {
   authToken = token;
-  addLog('AUTH_TOKEN_SET', { tokenLength: token?.length || 0, source: 'manual' });
+  authTokenSource = 'manual';
+  addLog('AUTH_TOKEN_SET', { tokenLength: token?.length || 0, source: authTokenSource });
 }
 
 export function getAuthToken(): string | null {
@@ -47,8 +53,8 @@ export function clearDebugLogs() {
 
 export function downloadDebugLogs() {
   const dataStr = JSON.stringify(DEBUG_LOGS, null, 2);
-  const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-  const exportFileDefaultName = `cgv-debug-${new Date().toISOString().slice(0,19).replace(/:/g,'-')}.json`;
+  const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+  const exportFileDefaultName = `cgv-debug-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.json`;
 
   const linkElement = document.createElement('a');
   linkElement.setAttribute('href', dataUri);
@@ -104,7 +110,7 @@ async function fetchWithTimeout(url: string, timeout = 10000): Promise<Response>
   const id = setTimeout(() => controller.abort(), timeout);
 
   const headers: HeadersInit = {
-    'Accept': 'application/json',
+    Accept: 'application/json'
   };
 
   if (authToken) {
@@ -141,34 +147,32 @@ export async function getCinemas(): Promise<Cinema[]> {
 export async function getMoviesByLocation(locationId: string): Promise<Movie[]> {
   try {
     const [playingRes, upcomingRes] = await Promise.all([
-      fetchWithTimeout(
-        `${API_BASE}/api/movies/playing?location_id=${encodeURIComponent(locationId)}`
-      ),
-      fetchWithTimeout(
-        `${API_BASE}/api/movies/upcoming?location_id=${encodeURIComponent(locationId)}`
-      )
+      fetchWithTimeout(`${API_BASE}/api/movies/playing?location_id=${encodeURIComponent(locationId)}`),
+      fetchWithTimeout(`${API_BASE}/api/movies/upcoming?location_id=${encodeURIComponent(locationId)}`)
     ]);
 
     const playingData: ApiResponse<Movie[]> = await playingRes.json();
     const upcomingData: ApiResponse<Movie[]> = await upcomingRes.json();
 
-    const playing = (playingData.status_code === 200 && Array.isArray(playingData.data))
-      ? playingData.data.map(movie => ({
-          ...movie,
-          title: movie.name || movie.title || '',
-          name: movie.name || movie.title || '',
-          status: 'playing' as const
-        }))
-      : [];
+    const playing =
+      playingData.status_code === 200 && Array.isArray(playingData.data)
+        ? playingData.data.map(movie => ({
+            ...movie,
+            title: movie.name || movie.title || '',
+            name: movie.name || movie.title || '',
+            status: 'playing' as const
+          }))
+        : [];
 
-    const upcoming = (upcomingData.status_code === 200 && Array.isArray(upcomingData.data))
-      ? upcomingData.data.map(movie => ({
-          ...movie,
-          title: movie.name || movie.title || '',
-          name: movie.name || movie.title || '',
-          status: 'upcoming' as const
-        }))
-      : [];
+    const upcoming =
+      upcomingData.status_code === 200 && Array.isArray(upcomingData.data)
+        ? upcomingData.data.map(movie => ({
+            ...movie,
+            title: movie.name || movie.title || '',
+            name: movie.name || movie.title || '',
+            status: 'upcoming' as const
+          }))
+        : [];
 
     return [...playing, ...upcoming];
   } catch (error) {
@@ -198,7 +202,7 @@ export async function scanSchedulesNext10Days(
     locationId,
     movieStatus,
     hasAuthToken: !!authToken,
-    tokenSource: import.meta.env.VITE_CGV_AUTH_TOKEN ? 'environment' : 'manual'
+    tokenSource: authTokenSource // ⬅ tidak baca ENV lagi
   });
 
   const schedulesByDate = new Map<string, Schedule[]>();
@@ -220,7 +224,9 @@ export async function scanSchedulesNext10Days(
     const formattedDate = formatDateYMD(checkDate);
 
     try {
-      const url = `${API_BASE}/api/movies/${encodeURIComponent(movieId)}/schedules?location_id=${encodeURIComponent(locationId)}&date=${encodeURIComponent(dateStr)}`;
+      const url = `${API_BASE}/api/movies/${encodeURIComponent(
+        movieId
+      )}/schedules?location_id=${encodeURIComponent(locationId)}&date=${encodeURIComponent(dateStr)}`;
       addLog('API_REQUEST', {
         date: dateStr,
         url,
@@ -256,7 +262,11 @@ export async function scanSchedulesNext10Days(
         const schedules: Schedule[] = [];
         const cinemasData = data.data.cinemas || [];
 
-        addLog('CINEMAS_DATA', { date: dateStr, cinemasCount: cinemasData.length, fullCinemasArray: cinemasData });
+        addLog('CINEMAS_DATA', {
+          date: dateStr,
+          cinemasCount: cinemasData.length,
+          fullCinemasArray: cinemasData
+        });
 
         cinemasData.forEach((cinema: any, cinemaIdx: number) => {
           addLog('CINEMA_DETAIL', {
@@ -292,7 +302,8 @@ export async function scanSchedulesNext10Days(
                     start_time: schedule.start_time || schedule.time,
                     end_time: schedule.end_time || '',
                     auditorium_name: scheduleType.auditorium_name || cinema.name || '',
-                    auditorium_type_name: scheduleType.auditorium_type_name || scheduleType.name || 'Regular',
+                    auditorium_type_name:
+                      scheduleType.auditorium_type_name || scheduleType.name || 'Regular',
                     price: basePrice,
                     auditorium_type: scheduleType.auditorium_type_id,
                     remaining_seat_count: schedule.remaining_seat_count || 0,
@@ -340,7 +351,10 @@ export async function scanSchedulesNext10Days(
     }
   });
 
-  addLog('SCAN_COMPLETE', { totalDatesWithSchedules: schedulesByDate.size, dates: Array.from(schedulesByDate.keys()) });
+  addLog('SCAN_COMPLETE', {
+    totalDatesWithSchedules: schedulesByDate.size,
+    dates: Array.from(schedulesByDate.keys())
+  });
   return schedulesByDate;
 }
 
@@ -351,7 +365,9 @@ export async function getSchedules(
 ): Promise<Schedule[]> {
   try {
     const response = await fetchWithTimeout(
-      `${API_BASE}/api/movies/${encodeURIComponent(movieId)}/schedules?cinema_id=${encodeURIComponent(cinemaId)}&date=${encodeURIComponent(date)}`
+      `${API_BASE}/api/movies/${encodeURIComponent(
+        movieId
+      )}/schedules?cinema_id=${encodeURIComponent(cinemaId)}&date=${encodeURIComponent(date)}`
     );
     const data: ApiResponse<ScheduleResponse> = await response.json();
 
@@ -364,7 +380,8 @@ export async function getSchedules(
             start_time: schedule.start_time,
             end_time: schedule.end_time,
             auditorium_name: schedule.auditorium_name || '',
-            auditorium_type_name: schedule.auditorium_type_name || schedule.auditorium_type?.name || 'Regular',
+            auditorium_type_name:
+              schedule.auditorium_type_name || schedule.auditorium_type?.name || 'Regular',
             price: schedule.price || 0,
             auditorium_type: schedule.auditorium_type
           });
@@ -412,7 +429,10 @@ export async function getSeats(scheduleId: string): Promise<any> {
   }
 }
 
-export function calculatePromoPrice(price: number, time: string): { normal: number; promo: number } {
+export function calculatePromoPrice(
+  price: number,
+  time: string
+): { normal: number; promo: number } {
   const normalTotal = price * 2;
 
   const timeStr = time.replace(':', '.');
