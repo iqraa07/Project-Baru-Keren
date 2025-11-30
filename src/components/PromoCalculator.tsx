@@ -192,7 +192,6 @@ export default function PromoCalculator() {
               <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
                 <p className="text-sm text-yellow-900">
-                  <strong>Perhatian:</strong> Authorization Token tidak ditemukan. Beberapa fitur mungkin tidak berfungsi.
                 </p>
               </div>
             </div>
