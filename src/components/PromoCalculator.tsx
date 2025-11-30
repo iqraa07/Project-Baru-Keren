@@ -112,7 +112,7 @@ export default function PromoCalculator() {
     setLoadingSchedules(false);
 
     if (dates.length === 0) {
-      setError('Tidak ada jadwal tersedia. API CGV menolak akses - pastikan Anda sudah memasukkan Authorization Token yang valid di bagian "Catatan Penting" di atas. Download log untuk detail error.');
+      setError('Tidak ada jadwal tersedia.');
     } else {
       setSelectedDate(dates[0]);
       setSchedules(schedulesMap.get(dates[0]) || []);
