@@ -5,7 +5,7 @@ const API_BASE = 'https://v2-api.cgv.id';
 
 // --- Auth token & sumbernya ---
 let authToken: string | null =
-  'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3YyLWFwaS5jZ3YuaWQvYXBpL2xvZ2luIiwiaWF0IjoxNzY0NTE1ODA2LCJleHAiOjE3NjQ2MDIyMDYsIm5iZiI6MTc2NDUxNTgwNiwianRpIjoiRE5uWkdIOWdCZVNlVERmQyIsInN1YiI6ImlkYW1yb2hpbUBnbWFpbC5jb20iLCJjaGFubmVsX2NvZGUiOiIwNyIsIm1lbWJlcl9ubyI6IjI1MTA2NjE2NDMyIn0.efa1z5f8aFk2qGH-NW3Y6vXhpWRfdDTa_1eUqxXSxUw';
+  'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL3YyLWFwaS5jZ3YuaWQvYXBpL2xvZ2luIiwiaWF0IjoxNzY3OTU0ODAxLCJleHAiOjE3NjgwNDEyMDEsIm5iZiI6MTc2Nzk1NDgwMSwianRpIjoiVW9tZG5NSEdjY2o2bVRBUiIsInN1YiI6ImRlZmFudHlhYXNocmV6QGdtYWlsLmNvbSIsImNoYW5uZWxfY29kZSI6IjA3IiwibWVtYmVyX25vIjoiMjUxMDY2MTY1OTUifQ.WnnpqkwkCyOR7AO8Wm9nTo7ZqIh0CkmJGeoWex61vIE';
 
 let authTokenSource: 'hardcoded' | 'manual' = 'hardcoded';
 
